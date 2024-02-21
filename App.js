@@ -4,6 +4,7 @@ import SignInScreens from './src/tab/profile/profilescreens/SignInScreens'
 import SignUpScreens from './src/tab/profile/profilescreens/SignUpScreens'
 import UserDetails from './src/tab/profile/profilescreens/UserDetails'
 import imageUploader from './src/tab/imageUpload/imageUploader'
+import CreatePostScreen from './src/tab/createPost/CreatePostScreen'
 import ForgotPasswordScreen from './src/tab/profile/profilescreens/ForgotPasswordScreen'
 import ConfirmationScreens from './src/tab/profile/profilescreens/ConfirmationScreens'
 import { NavigationContainer } from '@react-navigation/native';
@@ -73,6 +74,12 @@ export const ProfileStack = () => {
     )
 }
 
+export const CreatePostStack=()=>{
+  <Stack.Navigator screenOptions={{headerShown:false}}>
+    <Stack.Screen name={"addPost"} component={CreatePostScreen}/>
+    </Stack.Navigator>
+}
+
 export const TabNavigator=()=>{
   return (
     <Tab.Navigator  screenOptions={({ route }) => ({
@@ -88,8 +95,12 @@ export const TabNavigator=()=>{
            size = focused ? 25 : 20;
         }
         else if (route.name === 'Upload') {
-          iconName = 'upload' 
+          iconName = 'camera' 
            size = focused ? 25 : 20;
+        }
+        else if(route.name==='addPost'){
+          iconName='plus-circle'
+          size = focused ? 25 : 20;
         }
         
         return <Icon name={iconName} size={size} color={color} />;
@@ -104,7 +115,9 @@ export const TabNavigator=()=>{
     })} >
         <Tab.Screen name="Home" component={HomeStack} />
         <Tab.Screen name="Upload" component={ImageStack} />
+        <Tab.Screen name="addPost" component={CreatePostStack} />
         <Tab.Screen name="User" component={ProfileStack} />
+       
       </Tab.Navigator>
   )
 }
