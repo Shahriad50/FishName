@@ -4,11 +4,12 @@ import CustomButton from '../../../../components/CustomButton';
 import { useNavigation } from '@react-navigation/core';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { useAuth } from '../../../../../AuthContext';
 
 const UserDetails = ({ route }) => {
   const { height } = useWindowDimensions();
   const navigation = useNavigation();
-
+  const { user } = useAuth();
   const [userData, setUserData] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -16,16 +17,15 @@ const UserDetails = ({ route }) => {
     navigation.navigate('SignInScreen');
   };
 
-  const signOut = () => {
-    auth()
-      .signOut()
-      .then(() => {
-        console.log('User signed out!');
-        navigation.navigate('SignInScreen');
-      })
-      .catch(error => {
-        console.log(error.nativemessage);
-      });
+  const signOut = async() => {
+    try {
+      await auth().signOut();
+
+      console.log('User signed out!');
+      navigation.navigate('SignInScreen');
+    } catch (error) {
+      console.log(error.nativeMessage);
+    }
   };
 
   const fetchUserData = async (authUid) => {
@@ -52,8 +52,8 @@ const UserDetails = ({ route }) => {
   useEffect(() => {
     console.log('fetching user data...')
     // Extract user information from route parameters
-    const { user } = route.params || {};
-    console.log(user)
+    // const { user } = route.params || {};
+    // console.log(user)
     {
       // If user information is not available, fetch it from Firestore
       fetchUserData(user.uid);

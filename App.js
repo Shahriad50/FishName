@@ -1,86 +1,15 @@
-import { View, Text,SafeAreaView } from 'react-native'
-import React,{useEffect,useState} from 'react'
-import SignInScreens from './src/tab/profile/profilescreens/SignInScreens'
-import SignUpScreens from './src/tab/profile/profilescreens/SignUpScreens'
-import UserDetails from './src/tab/profile/profilescreens/UserDetails'
-import imageUploader from './src/tab/imageUpload/imageUploader'
-import createPostScreen from './src/tab/createPost/createPostScreen'
-import ForgotPasswordScreen from './src/tab/profile/profilescreens/ForgotPasswordScreen'
-import ConfirmationScreens from './src/tab/profile/profilescreens/ConfirmationScreens'
+import React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Navigation from './src/Navigation'
-import NewPasswordScreen from './src/tab/profile/profilescreens/NewPasswordScreen'
-import HomeScreen from './src/tab/home/homescreens/HomeScreen'
-import { getAuth } from '@react-native-firebase/auth';
+import ProfileStack from './src/Navigation/profileStack/ProfileStack'
+import HomeStack from './src/Navigation/homeStack/HomeStack'
+import ImageStack from './src/Navigation/imageStack/ImageStack'
+import CreatePostStack from './src/Navigation/createPostStack/CreatePostStack'
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { AuthProvider } from './AuthContext';
 
 
 const Tab = createBottomTabNavigator();
-const Stack=createNativeStackNavigator();
-
-
-
-
-export const HomeStack = () => {
-   
-    return (
-      <Stack.Navigator screenOptions={{headerShown:false}} >
-         <Stack.Screen name="Home" component={HomeScreen} />
-
-      </Stack.Navigator>
-    )
-}
-
-export const ImageStack=()=>{
-  return(
-    <Stack.Navigator screenOptions={{headerShown:false}}>
-    <Stack.Screen name={"imageUploader"} component={imageUploader}/>
-    </Stack.Navigator>
-  )
-}
-export const ProfileStack = () => {
-  const [initialRoute, setInitialRoute] = useState('SignInScreen');
-  useEffect(() => {
-    const checkAuthentication = async () => {
-      const authInstance = getAuth();
-      const user = authInstance.currentUser;
-
-      if (user) {
-        setInitialRoute('UserDetails');
-      } else {
-        setInitialRoute('SignInScreen');
-      }
-    };
-
-    checkAuthentication();
-  }, []);
-    return (
-      
-      <Stack.Navigator initialRouteName={initialRoute}
-      screenOptions={{
-        headerShown: false,
-        
-       
-      }}>
-         <Stack.Screen name={"UserDetails"} component={UserDetails}/>
-        <Stack.Screen name={"SignInScreen"} component={SignInScreens}/>
-        <Stack.Screen name={"SignUp"} component={SignUpScreens}/>
-        <Stack.Screen name={"Confirmation"} component={ConfirmationScreens}/>
-        <Stack.Screen name={"ForgotPassword"} component={ForgotPasswordScreen}/>      
-        <Stack.Screen name={"Newpassword"} component={NewPasswordScreen}/>
-      </Stack.Navigator>
-    )
-}
-
-export const CreatePostStack=()=>{
-  return (
-  <Stack.Navigator screenOptions={{headerShown:false}}>
-    <Stack.Screen name={"AddPost"} component={createPostScreen}/>
-    </Stack.Navigator>
-  )
-}
 
 export const TabNavigator=()=>{
   return (
@@ -124,15 +53,13 @@ export const TabNavigator=()=>{
   )
 }
 const App = () => {
-
- 
   return(
+    <AuthProvider>
       <NavigationContainer>  
         <TabNavigator/>
       </NavigationContainer>
+    </AuthProvider>
   )
-  
-
 }
 
 export default App

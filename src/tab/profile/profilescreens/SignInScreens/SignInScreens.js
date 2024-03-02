@@ -1,4 +1,5 @@
 import React, { useState,useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ScrollView, StyleSheet, Image, useWindowDimensions, Alert } from 'react-native';
 import CustomInput from '../../../../components/CustomInput';
 import CustomButton from '../../../../components/CustomButton';
@@ -26,7 +27,12 @@ const SignInScreens = ({route}) => {
           email: user.email,
           // Add other necessary properties
         };
-        navigation.navigate('UserDetails', { user: serializedUser }); // Pass user information to UserDetails screen
+        try {
+          await AsyncStorage.setItem('userData', JSON.stringify(serializedUser));
+        } catch (error) {
+          console.error('Error saving user data:', error);
+        }
+        navigation.navigate('UserDetails', { user: serializedUser }); // Passing user information to UserDetails screen
       } else {
         Alert.alert('Error:', 'Please verify your email before signing in.');
       }
