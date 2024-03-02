@@ -1,1 +1,1 @@
-export {default} from './CreatePostScreen'
+export {default} from './createPostScreen'

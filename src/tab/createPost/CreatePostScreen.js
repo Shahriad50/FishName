@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { ScrollView ,View, Text, TextInput, TouchableOpacity, Image, Button } from 'react-native';
-import {launchCamera,launchImageLibrary} from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const CreatePostScreen = () => {
+ const createPostScreen = () => {
   const [image, setImage] = useState(null);
   const [caption, setCaption] = useState('');
   const options = {
@@ -48,3 +48,4 @@ const CreatePostScreen = () => {
     </ScrollView>
   );
  }
+ export default createPostScreen
