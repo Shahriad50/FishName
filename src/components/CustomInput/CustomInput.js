@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Text,StyleSheet } from 'react-native';
+import { View, TextInput, Text,StyleSheet,TouchableOpacity } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-
+import Icon from 'react-native-vector-icons/FontAwesome5';
 const CustomInput = ({ placeholder, value, setValue, secureTextEntry, checkAvailability }) => {
   const [isAvailable, setIsAvailable] = useState(true);
-
+  const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
     // Checking unique username availability when the value changes
     if (checkAvailability) {
       checkAvailability(value);
     }
+    
   }, [value, checkAvailability]);
 
   return (
@@ -20,6 +21,7 @@ const CustomInput = ({ placeholder, value, setValue, secureTextEntry, checkAvail
         value={value}
         onChangeText={setValue}
         secureTextEntry={secureTextEntry}
+        autoCapitalize="none"
       />
       {!isAvailable && <Text style={{ color: 'red' }}>Username is not available</Text>}
     </View>

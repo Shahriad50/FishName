@@ -1,12 +1,15 @@
 import HomeScreen from '../../tab/home/homescreens/HomeScreen'
-import CustomHeader from '../../components/CustomHeader/CustomHeader'
+import CustomNavigation from '../../components/CustomNavigation/CustomNavigation'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack=createNativeStackNavigator();
 export const HomeStack = () => {
    
     return (
-      <Stack.Navigator  >
-         <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Navigator screenOptions={{
+        header: CustomNavigation
+       }}
+       >
+         <Stack.Screen name="HomeScreen" component={HomeScreen}/>
       </Stack.Navigator>
     )
 }

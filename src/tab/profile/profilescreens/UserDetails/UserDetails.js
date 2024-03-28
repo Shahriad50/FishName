@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, useWindowDimensions, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect ,useRef} from 'react';
+import { View, StatusBar, SafeAreaView, Text, StyleSheet, ScrollView, Image, useWindowDimensions, TouchableOpacity, Dimensions, Linking,Alert, ActivityIndicator,Button } from 'react-native';
 import CustomButton from '../../../../components/CustomButton';
 import { useNavigation } from '@react-navigation/core';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../../../../../AuthContext';
-
+import {WebView} from 'react-native-webview';
 const UserDetails = ({ route }) => {
   const { height } = useWindowDimensions();
   const navigation = useNavigation();
+  const refs=useRef();
   const { user } = useAuth();
   const [userData, setUserData] = useState('');
+  const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ 
   const onSignInPressed = () => {
     navigation.navigate('SignInScreen');
   };
@@ -27,11 +29,10 @@ const UserDetails = ({ route }) => {
       console.log(error.nativeMessage);
     }
   };
-
-  const fetchUserData = async (authUid) => {
+  const fetchUserData = async () => {
     try {
-     // const authUid = auth().currentUser.uid;
-  
+      const authUid = auth().currentUser.uid;
+      console.log(authUid)
       // Fetch the user document using the Firebase Authentication UID
       const userDoc = await firestore().collection('users').where('uid', '==', authUid).get();
   
@@ -51,20 +52,24 @@ const UserDetails = ({ route }) => {
 
   useEffect(() => {
     console.log('fetching user data...')
-    // Extract user information from route parameters
-    // const { user } = route.params || {};
-    // console.log(user)
     {
       // If user information is not available, fetch it from Firestore
       fetchUserData(user.uid);
     }
   }, []);
+  onEditProfile=()=>{
+    navigation.navigate('EditProfileScreen');
+  }
+  onLocation=()=>{
+    navigation.navigate('LocationScreen');
+  }
+  
   return (
     <ScrollView>
       
       <View style={styles.detailsView}>
         {/* Loading indicator while fetching data */}
-      {/* {loading && <ActivityIndicator size="large" color="#0000ff" />} */}
+      {loading && <ActivityIndicator size="large" color="#0000ff" />}
         <View style={styles.profileImageContainer}>
       <Image
   source={{ uri: userData?.profileImageUri }}
@@ -79,18 +84,36 @@ const UserDetails = ({ route }) => {
 
       
 
+      
+
       {/* Sign-in button if the user is not logged in */}
       {!auth().currentUser && (
-        <CustomButton style={{ padding: 20, marginVertical: 20 }} onPress={onSignInPressed} text="Sign In" />
+        <CustomButton onPress={onSignInPressed} text="Log In" />
       )}
 
       {/* Sign-out button if the user is logged in */}
       {auth().currentUser && (
-        <CustomButton style={{ padding: 20, marginVertical: 20, backgroundColor: '#3f23' ,color:'red' }} text="Sign Out" onPress={signOut} type="TERTIARY" />
-      )}
+       <View style={styles.buttonView}>
+         <Button onPress={onEditProfile} title="Edit Details" color="green" />
+         <Button onPress={signOut} title="Log Out" color="red" />
+       </View>
+         )}
+    
+  <View style={styles.videoContainer}>
+          <Text style={styles.subHeading}>About FishName App</Text>
+          <WebView
+            style={styles.video}
+            javaScriptEnabled={true}
+            source={{ uri: "https://www.youtube.com/embed/25d8i4LMCnw?si=obPH4n2or4bejPNr" }}
+          />
+        </View>
+        <View style={styles. ButtonArea}> 
+        <Button style={styles.Button} onPress={onLocation} title="Location" color="green" />
+        </View>
+         
     </ScrollView>
   );
-};
+      }
 
 const styles = StyleSheet.create({
   detailsView: {
@@ -123,7 +146,60 @@ const styles = StyleSheet.create({
     borderColor: 'gray', // Optional border color
     borderWidth: 2, // Optional border width
   },
+ buttonView: {
+  
+  flexDirection: 'row', 
+  justifyContent: 'space-between', 
+ 
+   padding: 10
+  },
+  videoContainer: {
+    marginBottom: 20,
+    flex:1,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+  subHeading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 12,
+    color: '#28a745'
+  },
+  video: {
+    height: 200,
+    width: Dimensions.get('window').width - 40,
+  },
+  mapContainer: {
+    flex:1
+  },
+  map: {
+    height: 200,
+    borderRadius: 10,
+  },
+  Webview: {
+    flex: 2,
+    
+  },
+  ButtonArea: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center'
+  },
+  Button: {
+    width: 80,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: 'black',
+    alignItems: 'center'
+  },
+  ButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
+  }
   
 });
 
 export default UserDetails;
+

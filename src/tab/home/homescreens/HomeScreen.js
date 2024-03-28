@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useSelector } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Modal, TextInput, Button,FlatList,Image } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity,Dimensions, ActivityIndicator, Modal, TextInput, Button,FlatList,Image } from 'react-native';
 import { Card, Title, Paragraph, Avatar } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../../../../AuthContext';
 import CustomInput from '../../../components/CustomInput';
+import { WebView } from 'react-native-webview';
 const CommentModal = ({ newsId, user, visible, onClose }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -110,12 +111,12 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
           />
           <View style={styles.commentButton}>
           <Button
-           
+           style={styles.commentButton}
            title="Close"
            onPress={onClose}
          />
           <Button
-           // style={{ padding: 20, marginVertical: 5 }}
+           style={styles.commentButton}
             title="Save Comment"
             onPress={saveComment}
           />
@@ -133,30 +134,48 @@ const HomeScreen = () => {
   const [selectedNewsId, setSelectedNewsId] = useState('');
   const [likedPosts, setLikedPosts] = useState([]);
   const [dislikedPosts, setDislikedPosts] = useState([]);
-
   const { user } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 5; // Number of posts per page
 
+
+  const handlePreviousPage = () => {
+    setCurrentPage(currentPage - 1);
+  };
+  
+  const handleNextPage = () => {
+    setCurrentPage(currentPage + 1);
+  };
   useEffect(() => {
-    const subscriber = firestore()
-      .collection('newsfeed')
-      .onSnapshot((querySnapshot) => {
-        const newsArray = [];
+    let subscriber;
+    const fetchData = async () => {
+      subscriber = firestore()
+        .collection('newsfeed')
+        .onSnapshot(async (querySnapshot) => {
+          const newsArray = [];
 
-        querySnapshot.forEach((documentSnapshot) => {
-          newsArray.push({
-            ...documentSnapshot.data(),
-            key: documentSnapshot.id,
-          });
+         for (const doc of querySnapshot.docs) {
+            const newsData = doc.data();
+            const userDoc = await firestore().collection('users').doc(newsData.uid).get();
+            const userData = userDoc.data();
+
+            newsArray.push({
+              ...newsData,
+              key: doc.id,
+              user: userData, // Store user details in the news item
+            });
+          }
+
+
+          setNews(newsArray);
+          setLoading(false);
         });
-
-        setNews(newsArray);
-        setLoading(false);
-      });
+    };
+    fetchData();
 
     // Unsubscribe from events when no longer in use
-    return () => subscriber();
+    return () => subscriber?.();
   }, []);
-
   const handleLike = async (newsId) => {
     if (!user) {
       alert('Please LogIn to Your Account to react the post');
@@ -284,59 +303,87 @@ const HomeScreen = () => {
     setCommentModalVisible(true);
     setSelectedNewsId(newsId);
   };
-  if (loading) {
-    return <ActivityIndicator />;
-  }
+  
 
   return (
     <ScrollView style={styles.container}>
-      {newsArray.map((news) => (
-        <Card key={news.id} style={styles.card}>
-          <Card.Title
-            title={news.name}
-            subtitle="new user"
-            left={() => <Avatar.Image source={{ uri: news.avatar }} size={40} />}
-          />
-          {news.photo && <Card.Cover source={{ uri: news.photo }} />}
-          <Card.Content>
-            <Title style={styles.title}>{news.title}</Title>
-            <Paragraph>{news.content}</Paragraph>
-            <View style={styles.buttonsContainer}>
+     {loading &&<View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+      <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+      }
+       <FlatList
+        data={newsArray.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)}
+        renderItem={({ item: news }) => {
+          const newsUser = news ? news.user : null;
+          const isYoutubeLink = news?.content?.startsWith('https://www.youtube.com/');
+          return (
+            <Card key={news?.id} style={styles.card}>
+              <Card.Title  style={{fontWeight:'bold'}}
+                title={newsUser ? newsUser.username : "undefined"}
+                subtitle="new user"
+                left={() => newsUser ? <Avatar.Image source={{ uri: newsUser.profileImageUri }} size={40}/>:<Avatar.Image source={{ uri: 'https://example.com/avatar2.jpg' }} size={40}/>}
+              { ...news?.photo && <Card.Cover source={{ uri: news.photo }} />}/>
+               <Card.Content>
+                 <Title style={styles.title}>{news?.title}</Title>
+                 <Paragraph>{isYoutubeLink ? null : news?.content}</Paragraph>
+                <View style={styles.buttonsContainer}>
 
-            <TouchableOpacity onPress={() => handleLike(news.key)}>
-                        <Icon
-                          name="thumbs-up"
-                          size={20}
-                          color={likedPosts.includes(news.key) ? 'blue' : 'grey'}
-                          solid={likedPosts.includes(news.key)} // solid prop to control outline or solid icon
-                        />
-                        <Text>Like {news.likes}</Text>
-                      </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleLike(news?.key)}>
+                            <Icon
+                              name="thumb-up"
+                              size={20}
+                              color={likedPosts.includes(news?.key) ? 'blue' : 'grey'}
+                              solid={likedPosts.includes(news?.key)} // solid prop to control outline or solid icon
+                            />
+                            <Text>Like {news?.likes}</Text>
+                          </TouchableOpacity>
 
-                      <TouchableOpacity onPress={() => handleDislike(news.key)}>
-                        <Icon
-                          name="thumbs-down"
-                          size={20}
-                          color={dislikedPosts.includes(news.key) ? 'red' : 'grey'}
-                          solid={dislikedPosts.includes(news.key)} // solid prop to control outline or solid icon
-                        />
-                        <Text>Dislike {news.dislikes}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleComment(news.key)}>
-                <Icon name="comment" size={20} color={'red'} />
-                <Text>Comment {news.commentCount}</Text>
-              </TouchableOpacity>
-            </View>
-          </Card.Content>
-        </Card>
-      ))}
-
+                          <TouchableOpacity onPress={() => handleDislike(news?.key)}>
+                            <Icon
+                              name="thumb-down"
+                              size={20}
+                              color={dislikedPosts.includes(news?.key) ? 'red' : 'grey'}
+                              solid={dislikedPosts.includes(news?.key)} // solid prop to control outline or solid icon
+                            />
+                            <Text>Dislike {news?.dislikes}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleComment(news?.key)}>
+                      <Icon name="comment" size={20} color={'red'} />
+                      <Text>Comment {news?.commentCount}</Text>
+                </TouchableOpacity>
+                </View>
+              </Card.Content>
+            </Card>
+          );
+        }}
+        keyExtractor={(item) => item?.id}
+      />
+    
 <CommentModal
         newsId={selectedNewsId}
         user={user}
         visible={commentModalVisible}
         onClose={() => setCommentModalVisible(false)}
       />
+      
+      
+      <View style={styles.pagination}>
+      <TouchableOpacity
+        onPress={handlePreviousPage}
+        disabled={currentPage === 1}
+        style={[styles.paginationButton, currentPage === 1 && { opacity: 0.5 }]}
+      >
+        <Text style={styles.paginationButtonText}>Previous</Text>
+      </TouchableOpacity>
+      <Text style={styles.pageNumber}>{currentPage}</Text>
+      <TouchableOpacity
+        onPress={handleNextPage}
+        disabled={currentPage === Math.ceil(newsArray.length / postsPerPage)}
+        style={[styles.paginationButton, currentPage === Math.ceil(newsArray.length / postsPerPage) && { opacity: 0.5 }]}
+      >
+        <Text style={styles.paginationButtonText}>Next</Text>
+      </TouchableOpacity>
+    </View>
     </ScrollView>
   );
 };
@@ -345,6 +392,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  loading:{
+      justifyContent:'center',
+      alignItems:'center'
   },
   card: {
     marginVertical: 8,
@@ -361,18 +412,18 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     width:'100%',
-    justifyContent: 'flex-start',
-    alignItems: 'flext-start',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 22,
   },
   modalView: {
     flex:1,
-    width:'100%',
+    width:'90%',
     margin: 20,
     marginBottom:20,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
+    padding: 10,
     alignItems: 'center',
    
   },
@@ -397,8 +448,40 @@ const styles = StyleSheet.create({
     flex:2,
     flexDirection:'row',
     justifyContent:'space-between',
-    alignItems:'space-between'
-  }
+    alignItems:'space-between',
+    paddingHorizontal: 30,
+  },
+  pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
+    marginBottom:10,
+  },
+  paginationButton: {
+    backgroundColor: '#6f3e3e',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    marginHorizontal: 5,
+  },
+  paginationButtonText: {
+    color: '#f2f2f2',
+    fontWeight: 'bold',
+  },
+  pageNumber: {
+    borderRadius:5,
+    borderColor:'#aaaaaa',
+    borderWidth:2,
+    paddingHorizontal: 30,
+    fontSize: 16,
+    fontWeight:'bold',
+    color:'#051C60',
+  },
+  video: {
+    height: 200,
+    width: Dimensions.get('window').width - 40,
+  },
 });
 
 export default HomeScreen;

@@ -2,13 +2,10 @@ import React,{useState, useRef,useEffect}from 'react';
 import {View, Text, StyleSheet, ScrollView,Image,useWindowDimensions,TouchableOpacity,Platform} from 'react-native';
 import CustomInput from '../../../../components/CustomInput';
 import CustomButton from '../../../../components/CustomButton';
-import CustomDatepicker from '../../../../components/customDatepicker';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {useNavigation} from '@react-navigation/core';
 import { getAuth, createUserWithEmailAndPassword ,sendEmailVerification,updateProfile} from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import PhoneInput from "react-native-phone-number-input";
-import { collection, addDoc } from '@react-native-firebase/firestore';
+import { collection, setDoc,updateDoc,doc,addDoc } from '@react-native-firebase/firestore';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 const SignUpScreen = () => {
@@ -21,21 +18,17 @@ const SignUpScreen = () => {
   const [fullName, setFullName] = useState('');
   const navigation = useNavigation();
   const [value, setValue] = useState("");
-  const [formattedValue, setFormattedValue] = useState("");
   const [profileImageUri, setProfileImageUri] = useState(null);
-  const phoneInput = useRef(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleDateChange = (event, date) => {
-    setShowDatePicker(Platform.OS === 'ios'); // On iOS, the DateTimePicker is controlled, so we hide it after selection
-    if (date) {
-      setSelectedDate(date);
-    }
-  };
 
-  const showDatePickerModal = () => {
-    setShowDatePicker(true);
+ 
+
+  const setAllNone = () => {
+    setEmail('');
+    setPassword('');
+    setRepeatPassword('');
+    setUsername('');
+    setFullName('');
   };
  
   const checkUsernameAvailability = async (newUsername) => {
@@ -75,19 +68,20 @@ const SignUpScreen = () => {
       }
   
       const auth = getAuth();
-const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-const user = userCredential.user;
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
   
       try {
         // Add user details to Firestore
-        const userDocRef = await addDoc(collection(firestore(), 'users'), {
-          uid: user.uid,  // Use the Firebase Authentication UID
-          email: email,
-          username: username,
-          fullname: fullName,
-          mobile: formattedValue,
-          profileImageUri: profileImageUri,
-        });
+        const userDocRef = await doc(collection(firestore(), 'users'), user.uid);
+
+    await setDoc(userDocRef, {
+      uid:user.uid,
+      email: email,
+      username: username,
+      fullname: fullName,
+      profileImageUri: profileImageUri ? profileImageUri : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYppV833p1maKOimpt2-AmjfgicdfzRoyomqzXei1XRw&s",
+    });
   
         if (userDocRef) {
           // Send verification email
@@ -96,16 +90,11 @@ const user = userCredential.user;
           console.log('Verification email sent');
         }
   
-        // Update user profile with username
-        await updateProfile(user, {
-          displayName: username,
-        });
-  
         console.log('User added to Firestore!');
       } catch (error) {
         console.error('Error adding user to Firestore:', error);
       }
-  
+      setAllNone();
       console.log('User signed up:', user);
   
       // Redirect to Email Verification screen
@@ -169,6 +158,7 @@ const user = userCredential.user;
           setValue={setFullName}
           value={fullName}
           required
+         
         />
 
 <CustomInput
@@ -186,6 +176,7 @@ const user = userCredential.user;
           setValue={setEmail}
           value={email}
           required
+         
         />
         <CustomInput
           name="password"
@@ -193,6 +184,7 @@ const user = userCredential.user;
           setValue={setPassword}
            value={password}
           secureTextEntry
+          isPassword={true}
           required
         />
         <CustomInput
@@ -201,47 +193,9 @@ const user = userCredential.user;
           setValue={setRepeatPassword}
           value={repeatPassword}
           secureTextEntry
+          isPassword={true}
           required
         />
-        <View style={styles.dateInput}>
-  <TouchableOpacity onPress={showDatePickerModal}>
-    {selectedDate ? (
-      <Text>{selectedDate.toDateString()}</Text>
-    ) : (
-      <Text>Enter your Date of birth</Text>
-    )}
-  </TouchableOpacity>
-
-  {showDatePicker && (
-    <DateTimePicker
-      value={selectedDate}
-      mode="date"
-      display="default"
-      onChange={handleDateChange}
-    />
-  )}
-</View>
-        <PhoneInput
-          style={styles.phoneInput}
-          name="mobile"
-            ref={phoneInput}
-            defaultValue={value}
-            defaultCode="BD"
-            layout="first"
-            onChangeText={(text) => {
-              setValue(text);
-            }}
-            onChangeFormattedText={(text) => {
-              setFormattedValue(text);
-            }}
-            withDarkTheme
-            withFilter
-        filterPlaceholder="Search for BD"
-        filterPickerContainerStyle={{ backgroundColor: 'white' }}
-        filterInputStyle={{ color: 'black' }}
-        filterButtonTextStyle={{ color: 'blue' }}
-        filterPlaceholderTextColor="gray"
-          />
         <CustomButton
           text="Register"
           onPress={onRegisterPressed}

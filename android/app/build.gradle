@@ -117,6 +117,10 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    //  compile (project(':react-native-open-street-map')) {
+    //     // if you use the lib gms in the project or libs on project
+    //     exclude group: 'com.google.android.gms'
+    // }
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

@@ -13,7 +13,11 @@ const SignInScreens = ({route}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  
+  const setAllNone = () => {
+   
+    setEmail('');
+    setPassword('');
+  };
   const onSignInPressed = async () => {
     try {
       const authInstance = getAuth();
@@ -32,12 +36,15 @@ const SignInScreens = ({route}) => {
         } catch (error) {
           console.error('Error saving user data:', error);
         }
+        setAllNone();
         navigation.navigate('UserDetails', { user: serializedUser }); // Passing user information to UserDetails screen
       } else {
+        setAllNone();
         Alert.alert('Error:', 'Please verify your email before signing in.');
       }
     } catch (error) {
       // Handle other errors
+      setAllNone();
       Alert.alert('Error:', error.message);
     }
   };

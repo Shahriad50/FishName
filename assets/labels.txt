@@ -1,0 +1,7 @@
+0 Mosquito 
+1 Gold Fish
+2 Grass Carp
+3 Error
+4 Silver Carp
+5 Tilapia
+6 Catla

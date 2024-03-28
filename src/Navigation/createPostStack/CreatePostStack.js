@@ -1,13 +1,16 @@
 import CreatePostScreen from '../../tab/createPost/CreatePostScreen'
-import CustomHeader from '../../components/CustomHeader/CustomHeader'
+import CustomNavigation from '../../components/CustomNavigation/CustomNavigation'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 
 const Stack=createNativeStackNavigator();
 export const CreatePostStack=()=>{
     return (
-    <Stack.Navigator >
-      <Stack.Screen name={"AddPost"} component={CreatePostScreen} />
+    <Stack.Navigator   screenOptions={{
+      header: CustomNavigation
+     }}
+     >
+      <Stack.Screen name={"AddPost"} component={CreatePostScreen}/>
       </Stack.Navigator>
     )
   }
