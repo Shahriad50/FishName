@@ -20,7 +20,7 @@ export const TabNavigator=()=>{
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
 
-        if (route.name === 'HomeScreen') {
+        if (route.name === 'Home') {
           iconName ='home'
           size = focused ? 25 : 20;
         } 
@@ -30,7 +30,7 @@ export const TabNavigator=()=>{
         }
         else if (route.name === 'Scanner') {
           iconName = 'image' 
-           size = focused ? 25 : 20;
+           size = focused ? 35 : 20;
         }
         else if(route.name==='AddPost'){
           iconName='add-box'
@@ -39,13 +39,11 @@ export const TabNavigator=()=>{
        
         return <Icon name={iconName} size={size} color={color} />;
       },
-      tabBarActiveTintColor: 'tomato',
-      tabBarInactiveTintColor: 'gray',
-      tabBarActiveTintColor: '#000',
-      tabBarInactiveTintColor: '#55532',
+      tabBarActiveTintColor: '#f32e00',
+      tabBarInactiveTintColor: '#532',
       tabBarShowLabel: true,
       tabBarStyle: {
-       // backgroundColor: '#fe2', 
+        backgroundColor: '#e322', 
         fontSize:'14px',
         justifyContent:'center'
       },
@@ -53,7 +51,7 @@ export const TabNavigator=()=>{
         justifyContent: 'center', 
       },
     })} >
-        <Tab.Screen name="HomeScreen" component={HomeStack} options={{headerShown:false}}/>
+        <Tab.Screen name="Home" component={HomeStack} options={{headerShown:false}}/>
         <Tab.Screen name="Scanner" component={ImageStack} options={{headerShown:false}} />
         <Tab.Screen name="AddPost" component={CreatePostStack} options={{headerShown:false}}/>
         <Tab.Screen name="User" component={ProfileStack} options={{headerShown:false}}/>

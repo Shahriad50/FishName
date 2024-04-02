@@ -1,4 +1,4 @@
-import HomeScreen from '../../tab/home/homescreens/HomeScreen'
+import HomeScreen from '../../tab/hometab/homescreens/HomeScreen'
 import CustomNavigation from '../../components/CustomNavigation/CustomNavigation'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack=createNativeStackNavigator();

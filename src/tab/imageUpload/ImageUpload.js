@@ -11,8 +11,8 @@ import {
   fetch,
 } from "@tensorflow/tfjs-react-native";
 
-// const modelJson = require("../../../assets/trained_model/model.json");
-// import modelWeights from '../../../assets/trained_model/weights.bin';
+ const modelJson = require("../../../assets/trained_model/model.json");
+ import modelWeights from '../../../assets/trained_model/weights.bin';
 
 
 
@@ -167,18 +167,18 @@ const fetchRecentUploads = async () => {
   };
 
 const handleImageScan = async () => {
-  // await tf.ready();
-  // const model = await tf.loadLayersModel(
-  //   bundleResourceIO(modelJson, modelWeights)
-  // );
-  // setModel(model);
+  await tf.ready();
+  const model = await tf.loadLayersModel(
+    bundleResourceIO(modelJson, modelWeights)
+  );
+  setModel(model);
 
-  // const imageTensor = await transformImageToTensor(selectedImage);
-  // const predictions = model.predict(imageTensor);
-  // const highestPredictionIndex = predictions.argMax(1).dataSync();
-  // const predictedClass = `${labels[highestPredictionIndex]}`;
-  // console.log(predictedClass);
-  // setPrediction(predictedClass);
+  const imageTensor = await transformImageToTensor(selectedImage);
+  const predictions = model.predict(imageTensor);
+  const highestPredictionIndex = predictions.argMax(1).dataSync();
+  const predictedClass = `${labels[highestPredictionIndex]}`;
+  console.log(predictedClass);
+  setPrediction(predictedClass);
   Alert.alert('Success','You Successfully scan the image');
 }
   return (

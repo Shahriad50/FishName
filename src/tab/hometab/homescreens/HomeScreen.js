@@ -6,6 +6,7 @@ import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../../../../AuthContext';
 import CustomInput from '../../../components/CustomInput';
 import { WebView } from 'react-native-webview';
+import styles from './App.sass'; 
 import { gsap, Back,Power2, Elastic, AutoKillTweens } from 'gsap-rn';
 const CommentModal = ({ newsId, user, visible, onClose }) => {
   const [comments, setComments] = useState([]);
@@ -86,8 +87,8 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
       onRequestClose={onClose}
     >
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <View style={styles.modalHeader}>
+        <View style={styles.modalview}>
+          <View style={styles.modalheader}>
             <Text style={{ color: 'blue' }}>Comments</Text>
           </View>
 
@@ -434,101 +435,8 @@ const HomeScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  loading:{
-      justifyContent:'center',
-      alignItems:'center'
-  },
-  card: {
-    marginVertical: 8,
-  },
-  title: {
-    fontWeight: 'bold',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
+
+
   
-  centeredView: {
-    flex: 1,
-    width:'100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    flex:1,
-    width:'90%',
-    margin: 20,
-    marginBottom:20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 10,
-    alignItems: 'center',
-   
-  },
-  modalHeader: {
-    marginBottom: 15,
-      color:'blue',
-  
-  },
-  commentContainer: {
-    //marginBottom: 10,
-  },
-  commentUsername: {
-    fontWeight: 'bold',
-   // marginBottom: 5,
-    color:'#3eee'
-  },
-  commentText:{
-    padding:10,
-    color:'black'
-  },
-  commentButton:{
-    flexDirection:'row',
-    justifyContent:'space-between',
-    alignItems:'space-between',
-    gap:5
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 5,
-    marginBottom:10,
-  },
-  paginationButton: {
-    backgroundColor: '#6f3e3e',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    marginHorizontal: 5,
-  },
-  paginationButtonText: {
-    color: '#f2f2f2',
-    fontWeight: 'bold',
-  },
-  pageNumber: {
-    borderRadius:5,
-    borderColor:'#aaaaaa',
-    borderWidth:2,
-    paddingHorizontal: 30,
-    fontSize: 16,
-    fontWeight:'bold',
-    color:'#051C60',
-  },
-  video: {
-    height: 200,
-    width: Dimensions.get('window').width - 40,
-  },
-  dots:{width:10, height:10, borderRadius:5,backgroundColor: "#f0ad4e", marginHorizontal:5},
-  button:{fontSize:20, backgroundColor: "#337ab7", paddingVertical:10, paddingHorizontal:20, color:"#FFF", borderRadius:5}
-});
 
 export default HomeScreen;

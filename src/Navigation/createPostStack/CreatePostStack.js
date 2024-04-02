@@ -1,4 +1,4 @@
-import CreatePostScreen from '../../tab/createPost/CreatePostScreen'
+import CreatePostScreen from '../../tab/createPostScreen/CreatePostScreen'
 import CustomNavigation from '../../components/CustomNavigation/CustomNavigation'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -10,7 +10,7 @@ export const CreatePostStack=()=>{
       header: CustomNavigation
      }}
      >
-      <Stack.Screen name={"AddPost"} component={CreatePostScreen}/>
+      <Stack.Screen name={"CreatePostScreen"} component={CreatePostScreen}/>
       </Stack.Navigator>
     )
   }
