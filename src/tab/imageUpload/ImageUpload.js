@@ -5,6 +5,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 import { encode as btoa } from 'base-64';
 import * as tf from "@tensorflow/tfjs";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   bundleResourceIO,
   decodeJpeg,
@@ -183,11 +184,15 @@ const handleImageScan = async () => {
 }
   return (
     <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Title title="Camera Upload" />
+
+      <View style={styles.cardContainer}>
+      <Card style={styles.cameraCard}>
+        <Card.Title title="Camera Upload" titleStyle={{fontSize:20,color:'green' ,fontWeight:'bold'}}/>
         <Card.Content>
           <TouchableOpacity onPress={handleCameraUpload}>
-            <Text style={styles.uploadText}>Tap to upload picture from camera</Text>
+            <View style={{justifyContent:'center',alignItems:'center'}}>
+          <Icon name='camera' size={60} color={'#452e32'} />
+          </View>
           </TouchableOpacity>
           {cselectedImage && (
             <View style={styles.previewContainer}>
@@ -199,28 +204,39 @@ const handleImageScan = async () => {
           )}
         </Card.Content>
       </Card>
+      </View>
+      
 
       <Divider style={styles.divider} />
+          <View style={styles.cardContainer}>
+          <Card style={styles.fileCard}>
+       
+       <Card.Title title="File Upload" titleStyle={{fontSize:20,color:'green' ,fontWeight:'bold'}}/>
 
-      <Card style={styles.card}>
-        <Card.Title title="File Upload" />
-        <Card.Content>
-          <TouchableOpacity onPress={handleFileUpload}>
-            <Text style={styles.uploadText}>Tap to upload picture from gallery</Text>
-          </TouchableOpacity>
-          {fselectedImage && (
-            <View style={styles.previewContainer}>
-              <Image source={{ uri: fselectedImage }} style={styles.previewImage} />
-              <Button icon="camera" mode="contained" onPress={handleImageScan}>
-                Scan
-              </Button>
-            </View>
-          )}
-        </Card.Content>
-      </Card>
+       <Card.Content>
+         <TouchableOpacity onPress={handleFileUpload}>
+        <View style={{justifyContent:'center',alignItems:'center'}}>
+         <Icon name='upload' size={60} color={'#452e32'} />
+         </View>
+         </TouchableOpacity>
+         {fselectedImage && (
+           <View style={styles.previewContainer}>
+             <Image source={{ uri: fselectedImage }} style={styles.previewImage} />
+             <Button icon="camera" mode="contained" onPress={handleImageScan}>
+               Scan
+             </Button>
+           </View>
+         )}
+       </Card.Content>
+     </Card>
+          </View>
+      
     
-    <View style={styles.recentCard}>
+      <View style={styles.recentCard}>
       <Text style={styles.uploadText}>Recent Uploads</Text>
+      </View>
+    <View >
+      <View style={styles.previewRecentContainer}>
       <FlatList
         data={recentImages}
         keyExtractor={(item, index) => index.toString()}
@@ -229,6 +245,7 @@ const handleImageScan = async () => {
         )}
         horizontal
       />
+      </View>
     </View>
       
 
@@ -240,6 +257,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor:'#c0c0c0'
+  },
+  cameraCard:{
+      backgroundColor:"#2d2d2d2d",
+      padding:16,
+      margin:16,
+      borderRadius:2,
+      borderWidth:1,
+      borderColor:"#c0c0c0",
+  },
+  fileCard:{
+    backgroundColor:"#2d2d2d2d",
+    padding:16,
+    margin:16,
+    borderRadius:2,
+    borderWidth:1,
+    borderColor:"#c0c0c0",
   },
   card: {
     marginVertical: 8,
@@ -247,8 +281,9 @@ const styles = StyleSheet.create({
   uploadText: {
     fontSize: 16,
     color: 'blue',
-    textAlign: 'center',
-    padding: 16,
+    textAlign: 'left',
+    padding: 7,
+    borderRadius:3,
   },
   divider: {
     marginVertical: 16,
@@ -263,9 +298,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
   },
+  previewRecentContainer:{
+          padding:10,
+          paddingBottom:10,
+  },
   recentCard:{
     flex:1,
-    flexDirection:'column'
+    flexDirection:'column',
+    borderRadius:2,
+    backgroundColor:'lightgreen'
   }
 });
 

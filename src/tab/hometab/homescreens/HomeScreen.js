@@ -25,18 +25,20 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
         commentsSnapshot.docs.map(async (doc) => {
           const commentData = doc.data();
           const userDoc = await firestore().collection('users').doc(commentData.userId).get();
-          const username = userDoc.exists ? userDoc.data().username : 'Unknown'; 
+          const username = userDoc.exists ? userDoc.data().username : 'Unknown';
+          const profileImageUri = userDoc.exists ? userDoc.data().profileImageUri : null;
           return {
             ...commentData,
             id: doc.id,
             username,
+            profileImageUri,
           };
         })
       );
   
       setComments(commentsData);
     } catch (error) {
-      console.error('Error fetching comments:', error);
+      console.error('Error fetching comments:', error.message);
     }
   };
   
@@ -52,7 +54,9 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
       alert('Please log in to comment on this post');
       return;
     }
+    if(newComment.length>0){
 
+    
     try {
       const newsDocRef = firestore().collection('newsfeed').doc(newsId);
 
@@ -75,8 +79,9 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
       setNewComment('');
       fetchComments();
     } catch (error) {
-      console.error('Error saving comment:', error);
+      console.error('Error saving comment:', error.message);
     }
+  }
   };
 
   return (
@@ -98,6 +103,12 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.commentContainer}>
+                {item.profileImageUri ? (
+                  <Image
+                    style={styles.profileImageUri}
+                    source={{ uri: item.profileImageUri }}
+                  />
+                ) : null}
                 <Text style={styles.commentUsername}>{item.username}</Text>
                 <Text style={styles.commentText}>{item.text}</Text>
               </View>
@@ -112,28 +123,24 @@ const CommentModal = ({ newsId, user, visible, onClose }) => {
             multiline
           />
           <View style={{
-            padding:30,
-            gap:10,
-            flexDirection:'row',
-            justifyContent:'space-between',
-           // alignItems:'center',
+            padding: 30,
+            gap: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
           }}>
-           
-          <Button
-           title="Close"
-           onPress={onClose}
-         />
-          <Button
-            title="Comment"
-            onPress={saveComment}
-          />
-          
+            <Button
+              title="Close"
+              onPress={onClose}
+            />
+            <Button
+              title="Comment"
+              onPress={saveComment}
+            />
           </View>
         </View>
       </View>
     </Modal>
-  );
-};
+  )}
 const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [newsArray, setNews] = useState([]);
@@ -150,30 +157,43 @@ const HomeScreen = () => {
   const loadingDot = useRef([]);
   const tl = useRef(null);
 
- 
   useEffect(() => {
-    AutoKillTweens.tweensOf(tl.current);
-    tl.current = gsap.timeline();
-    tl.current.to(loadingDot.current, {
-      duration: 1,
-      transform: { y: -100, scale: 0.8 },
-      ease: Power2.easeInOut,
-      stagger: { amount: 0.3 },
-      repeat:-1,
-      delay:0.1,
-      yoyo: true
-    });
-    tl.current.to(loadingDot.current, {
-      duration: 0.3,
-      transform: { y: 0, scale: 1 },
-      ease: Elastic.easeOut,
-      stagger: { amount: 0.3 },
-      repeat:-1,
-      delay:0.1,
-      yoyo: true,
-    });
+    let tlCurrent = tl.current;
+    if (tlCurrent) {
+      AutoKillTweens.tweensOf(tlCurrent);
+      tlCurrent.kill();
+    }
 
-    return()=> tl.revert();
+    tl.current = gsap.timeline();
+    tlCurrent = tl.current;
+
+    if (tlCurrent) {
+      tlCurrent.to(loadingDot.current, {
+        duration: 1,
+        transform: { y: -100, scale: 0.8 },
+        ease: Power2.easeInOut,
+        stagger: { amount: 0.3 },
+        repeat: -1,
+        delay: 0.1,
+        yoyo: true,
+      });
+      tlCurrent.to(loadingDot.current, {
+        duration: 0.3,
+        transform: { y: 0, scale: 1 },
+        ease: Elastic.easeOut,
+        stagger: { amount: 0.3 },
+        repeat: -1,
+        delay: 0.1,
+        yoyo: true,
+      });
+    }
+
+    return () => {
+      tlCurrent = tl.current;
+      if (tlCurrent) {
+        tlCurrent.kill();
+      }
+    };
   }, []);
   const handlePreviousPage = () => {
     setCurrentPage(currentPage - 1);
@@ -346,9 +366,9 @@ const HomeScreen = () => {
       {loading && (
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <AutoKillTweens tweens={tl.current} />
-        <Text>Loading</Text>
-        <View style={{ flexDirection: "row" }}>
-         
+       
+        <View style={{ flex: 1, flexDirection:'row',justifyContent: "center", alignItems: "center" }}>
+        <Text style={{fontWeight:'bold',color:'#051C60'}}>Loading</Text>
           {[...Array(3)].map((_, i) => (
             <View key={i} ref={ref => (loadingDot.current[i] = ref)} style={styles.dots} />
           ))}
@@ -365,8 +385,10 @@ const HomeScreen = () => {
             <Card key={news?.id} style={styles.card}>
               <Card.Title  style={{fontWeight:'bold'}}
                 title={newsUser ? newsUser.username : "undefined"}
-                subtitle="new user"
-                left={() => {newsUser&& newsUser ? <Avatar.Image source={{ uri: newsUser.profileImageUri }} size={40}/>:<Avatar.Image source={{ uri: 'https://example.com/avatar2.jpg' }} size={40}/>}}
+                left={() => {
+                  const uri = newsUser?.profileImageUri ?? 'https://example.com/avatar2.jpg';
+                  return <Avatar.Image source={{ uri }} size={40} />;
+                }}
                 />
                 {news.photo && <Card.Cover source={{ uri: news.photo }} />}
                <Card.Content>

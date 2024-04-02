@@ -43,7 +43,7 @@ export const TabNavigator=()=>{
       tabBarInactiveTintColor: '#532',
       tabBarShowLabel: true,
       tabBarStyle: {
-        backgroundColor: '#e322', 
+        backgroundColor: '#c0c0c0', 
         fontSize:'14px',
         justifyContent:'center'
       },

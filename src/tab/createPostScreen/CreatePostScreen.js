@@ -77,7 +77,7 @@ const CreatePostScreen = () => {
           ) : (
             <View style={styles.openCamera}>
               <Icon name="add-a-photo" size={40} color="#333" />
-              <Text>Add Photo</Text>
+              <Text style={{color:'#333'}}>Add image</Text>
             </View>
           )}
         </TouchableOpacity>
